@@ -1,0 +1,30 @@
+plugins {
+    id "java"
+}
+
+group "me.tonythemacaroni"
+version "0.1.0"
+
+repositories {
+    mavenCentral()
+
+    maven { url "https://papermc.io/repo/repository/maven-public/" }
+    maven { url "https://mvn.lumine.io/repository/maven-public/"}
+    maven { url 'https://jitpack.io' }
+}
+
+dependencies {
+    implementation "io.papermc.paper:paper-api:1.19.2-R0.1-SNAPSHOT"
+    implementation "com.github.TheComputerGeek2.MagicSpells:core:main-SNAPSHOT:dev-all"
+    implementation "io.lumine:Mythic-Dist:5.2.0"
+}
+
+compileJava {
+    options.encoding = 'UTF-8'
+    options.compilerArgs += ["-parameters"]
+    options.fork = true
+}
+
+tasks.withType(JavaCompile) {
+    options.encoding = 'UTF-8'
+}
