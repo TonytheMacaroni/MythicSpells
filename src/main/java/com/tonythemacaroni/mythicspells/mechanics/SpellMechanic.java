@@ -30,9 +30,7 @@ public class SpellMechanic extends SkillMechanic implements INoTargetSkill, ITar
 
         threadSafetyLevel = ThreadSafetyLevel.SYNC_ONLY;
 
-        String spellString = config.getString(new String[]{"spell", "s"});
-
-        spell = new Subspell(spellString);
+        spell = new Subspell(config.getPlaceholderString(new String[]{"spell", "s"}, "").get());
         invalid = !spell.process();
 
         passTargeting = config.getBoolean(new String[]{"passtargeting", "pt"}, true);
