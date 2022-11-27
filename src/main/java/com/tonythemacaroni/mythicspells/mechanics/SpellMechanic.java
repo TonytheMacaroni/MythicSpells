@@ -22,6 +22,7 @@ public class SpellMechanic extends SkillMechanic implements INoTargetSkill, ITar
 
     private final boolean passTargeting;
     private final boolean requireTarget;
+    private final boolean passPower;
     private final Subspell spell;
     private boolean invalid;
 
@@ -33,6 +34,7 @@ public class SpellMechanic extends SkillMechanic implements INoTargetSkill, ITar
         spell = new Subspell(config.getPlaceholderString(new String[]{"spell", "s"}, "").get());
         invalid = !spell.process();
 
+        passPower = config.getBoolean(new String[]{"passpower", "pp"}, true);
         passTargeting = config.getBoolean(new String[]{"passtargeting", "pt"}, true);
         requireTarget = config.getBoolean(new String[]{"requiretarget", "rt"}, parent.getTargeter().isPresent());
     }
@@ -49,7 +51,8 @@ public class SpellMechanic extends SkillMechanic implements INoTargetSkill, ITar
         if (!(BukkitAdapter.adapt(data.getCaster().getEntity()) instanceof LivingEntity livingCaster))
             return SkillResult.INVALID_TARGET;
 
-        spell.cast(livingCaster, data.getPower());
+        float power = passPower ? data.getPower() : 1f;
+        spell.cast(livingCaster, power);
 
         return SkillResult.SUCCESS;
     }
@@ -63,16 +66,17 @@ public class SpellMechanic extends SkillMechanic implements INoTargetSkill, ITar
 
         LivingEntity livingTarget = BukkitAdapter.adapt(target) instanceof LivingEntity le ? le : null;
 
+        float power = passPower ? data.getPower() : 1f;
         if (spell.isTargetedEntityFromLocationSpell()) {
             if (livingTarget == null) return SkillResult.INVALID_TARGET;
-            spell.castAtEntityFromLocation(livingCaster, BukkitAdapter.adapt(data.getOrigin()), livingTarget, data.getPower(), passTargeting);
+            spell.castAtEntityFromLocation(livingCaster, BukkitAdapter.adapt(data.getOrigin()), livingTarget, power, passTargeting);
         } else if (spell.isTargetedEntitySpell()) {
             if (livingTarget == null) return SkillResult.INVALID_TARGET;
-            spell.castAtEntity(livingCaster, livingTarget, data.getPower(), passTargeting);
+            spell.castAtEntity(livingCaster, livingTarget, power, passTargeting);
         } else if (spell.isTargetedLocationSpell()) {
             if (livingTarget == null) return SkillResult.INVALID_TARGET;
-            spell.castAtLocation(livingCaster, livingTarget.getLocation(), data.getPower());
-        } else spell.cast(livingCaster, data.getPower());
+            spell.castAtLocation(livingCaster, livingTarget.getLocation(), power);
+        } else spell.cast(livingCaster, power);
 
         return SkillResult.SUCCESS;
     }
@@ -84,9 +88,9 @@ public class SpellMechanic extends SkillMechanic implements INoTargetSkill, ITar
         if (!(BukkitAdapter.adapt(data.getCaster().getEntity()) instanceof LivingEntity livingCaster))
             return SkillResult.INVALID_TARGET;
 
-        if (spell.isTargetedLocationSpell())
-            spell.castAtLocation(livingCaster, BukkitAdapter.adapt(target), data.getPower());
-        else spell.cast(livingCaster, data.getPower());
+        float power = passPower ? data.getPower() : 1f;
+        if (spell.isTargetedLocationSpell()) spell.castAtLocation(livingCaster, BukkitAdapter.adapt(target), power);
+        else spell.cast(livingCaster, power);
 
         return SkillResult.SUCCESS;
     }
