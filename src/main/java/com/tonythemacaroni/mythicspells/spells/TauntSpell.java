@@ -46,21 +46,25 @@ public class TauntSpell extends TargetedSpell implements TargetedEntitySpell {
 
     @Override
     public boolean castAtEntity(LivingEntity caster, LivingEntity target, float power, String[] args) {
+        if (!validTargetList.canTarget(caster, target) || !THREAT_TABLE_CHECKER.isValidTarget(target)) return false;
         return taunt(caster, target, power, args);
     }
 
     @Override
     public boolean castAtEntity(LivingEntity caster, LivingEntity target, float power) {
+        if (!validTargetList.canTarget(caster, target) || !THREAT_TABLE_CHECKER.isValidTarget(target)) return false;
         return taunt(caster, target, power, null);
     }
 
     @Override
     public boolean castAtEntity(LivingEntity target, float power, String[] args) {
+        if (!validTargetList.canTarget(target) || !THREAT_TABLE_CHECKER.isValidTarget(target)) return false;
         return taunt(null, target, power, args);
     }
 
     @Override
     public boolean castAtEntity(LivingEntity target, float power) {
+        if (!validTargetList.canTarget(target) || !THREAT_TABLE_CHECKER.isValidTarget(target)) return false;
         return taunt(null, target, power, null);
     }
 

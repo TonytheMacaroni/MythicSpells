@@ -49,21 +49,25 @@ public class SignalSpell extends TargetedSpell implements TargetedEntitySpell {
 
     @Override
     public boolean castAtEntity(LivingEntity caster, LivingEntity target, float power, String[] args) {
+        if (!validTargetList.canTarget(caster, target) || !MYTHIC_MOB_CHECKER.isValidTarget(target)) return false;
         return signal(caster, target, power, args);
     }
 
     @Override
     public boolean castAtEntity(LivingEntity caster, LivingEntity target, float power) {
+        if (!validTargetList.canTarget(caster, target) || !MYTHIC_MOB_CHECKER.isValidTarget(target)) return false;
         return signal(caster, target, power, null);
     }
 
     @Override
     public boolean castAtEntity(LivingEntity target, float power, String[] args) {
+        if (!validTargetList.canTarget(target) || !MYTHIC_MOB_CHECKER.isValidTarget(target)) return false;
         return signal(null, target, power, args);
     }
 
     @Override
     public boolean castAtEntity(LivingEntity target, float power) {
+        if (!validTargetList.canTarget(target) || !MYTHIC_MOB_CHECKER.isValidTarget(target)) return false;
         return signal(null, target, power, null);
     }
 
