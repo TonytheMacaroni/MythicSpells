@@ -15,7 +15,7 @@ repositories {
 
 dependencies {
     implementation "io.papermc.paper:paper-api:1.19.2-R0.1-SNAPSHOT"
-    implementation "com.github.TheComputerGeek2.MagicSpells:core:main-SNAPSHOT:dev-all"
+    implementation "com.github.TheComputerGeek2.MagicSpells:core:main-SNAPSHOT"
     implementation "io.lumine:Mythic-Dist:5.2.0"
 }
 
@@ -25,6 +25,6 @@ compileJava {
     options.fork = true
 }
 
-tasks.withType(JavaCompile) {
+tasks.withType(JavaCompile).configureEach {
     options.encoding = 'UTF-8'
 }
