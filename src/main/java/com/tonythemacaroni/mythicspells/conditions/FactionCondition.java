@@ -28,7 +28,7 @@ public class FactionCondition extends Condition {
             if (!type.isEmpty()) factions.add(type);
         }
 
-        return !factions.isEmpty();
+        return true;
     }
 
     @Override
@@ -37,7 +37,7 @@ public class FactionCondition extends Condition {
         if (!helper.isMythicMob(caster)) return false;
 
         ActiveMob mob = helper.getMythicMobInstance(caster);
-        return factions.contains(mob.getFaction());
+        return factions.isEmpty() ? mob.hasFaction() : factions.contains(mob.getFaction());
     }
 
     @Override
