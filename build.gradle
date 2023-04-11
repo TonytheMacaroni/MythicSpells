@@ -3,7 +3,7 @@ plugins {
 }
 
 group "me.tonythemacaroni"
-version "0.1.0"
+version "0.1.1"
 
 repositories {
     mavenCentral()
@@ -14,9 +14,9 @@ repositories {
 }
 
 dependencies {
-    implementation "io.papermc.paper:paper-api:1.19.2-R0.1-SNAPSHOT"
+    implementation "io.papermc.paper:paper-api:1.19.4-R0.1-SNAPSHOT"
     implementation "com.github.TheComputerGeek2.MagicSpells:core:main-SNAPSHOT"
-    implementation "io.lumine:Mythic-Dist:5.2.0"
+    implementation "io.lumine:Mythic-Dist:5.2.1"
 }
 
 compileJava {
