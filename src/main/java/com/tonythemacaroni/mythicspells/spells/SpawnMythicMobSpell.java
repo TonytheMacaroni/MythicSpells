@@ -142,9 +142,7 @@ public class SpawnMythicMobSpell extends TargetedSpell implements TargetedLocati
         LivingEntity livingMob = mob instanceof LivingEntity le ? le : null;
 
         if (spellOnSpawn != null) {
-            if (livingMob != null && spellOnSpawn.isTargetedEntityFromLocationSpell())
-                spellOnSpawn.castAtEntityFromLocation(caster, target, livingMob, power);
-            else if (livingMob != null && spellOnSpawn.isTargetedEntitySpell())
+            if (livingMob != null && spellOnSpawn.isTargetedEntitySpell())
                 spellOnSpawn.castAtEntity(caster, livingMob, power);
             else if (spellOnSpawn.isTargetedLocationSpell())
                 spellOnSpawn.castAtLocation(caster, mob.getLocation(), power);
