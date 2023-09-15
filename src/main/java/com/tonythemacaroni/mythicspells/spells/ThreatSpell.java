@@ -6,6 +6,8 @@ import io.lumine.mythic.core.mobs.ActiveMob;
 import io.lumine.mythic.bukkit.MythicBukkit;
 import io.lumine.mythic.bukkit.BukkitAPIHelper;
 
+import com.nisovin.magicspells.util.SpellData;
+import com.nisovin.magicspells.util.CastResult;
 import com.nisovin.magicspells.util.TargetInfo;
 import com.nisovin.magicspells.util.MagicConfig;
 import com.nisovin.magicspells.spells.TargetedSpell;
@@ -27,70 +29,48 @@ public class ThreatSpell extends TargetedSpell implements TargetedEntitySpell {
 
     private final ConfigData<Boolean> powerAffectsThreat;
 
+    private final String strCantThreaten;
+
     public ThreatSpell(MagicConfig config, String spellName) {
         super(config, spellName);
 
         threat = getConfigDataDouble("threat", 0);
 
         powerAffectsThreat = getConfigDataBoolean("power-affects-threat", true);
+
+        strCantThreaten = getConfigString("str-cant-threaten", "");
     }
 
     @Override
-    public PostCastAction castSpell(LivingEntity caster, SpellCastState state, float power, String[] args) {
-        if (state == SpellCastState.NORMAL) {
-            TargetInfo<LivingEntity> targetInfo = getTargetedEntity(caster, power, THREAT_TABLE_CHECKER, args);
-            if (targetInfo.noTarget()) return noTarget(caster, args, targetInfo);
+    public CastResult cast(SpellData data) {
+        TargetInfo<LivingEntity> info = getTargetedEntity(data, THREAT_TABLE_CHECKER);
+        if (info.noTarget()) return noTarget(info);
 
-            LivingEntity target = targetInfo.target();
-            power = targetInfo.power();
-
-            if (!threat(caster, target, power, args)) return noTarget(caster, args);
-
-            sendMessages(caster, target, args);
-            return PostCastAction.NO_MESSAGES;
-        }
-
-        return PostCastAction.HANDLE_NORMALLY;
+        return castAtEntity(info.spellData());
     }
 
     @Override
-    public boolean castAtEntity(LivingEntity caster, LivingEntity target, float power, String[] args) {
-        if (!validTargetList.canTarget(caster, target) || !THREAT_TABLE_CHECKER.isValidTarget(target)) return false;
-        return threat(caster, target, power, args);
-    }
+    public CastResult castAtEntity(SpellData data) {
+        if (!data.hasCaster()) return new CastResult(PostCastAction.ALREADY_HANDLED, data);
 
-    @Override
-    public boolean castAtEntity(LivingEntity caster, LivingEntity target, float power) {
-        if (!validTargetList.canTarget(caster, target) || !THREAT_TABLE_CHECKER.isValidTarget(target)) return false;
-        return threat(caster, target, power, null);
-    }
-
-    @Override
-    public boolean castAtEntity(LivingEntity target, float power, String[] args) {
-        if (!validTargetList.canTarget(target) || !THREAT_TABLE_CHECKER.isValidTarget(target)) return false;
-        return threat(null, target, power, args);
-    }
-
-    @Override
-    public boolean castAtEntity(LivingEntity target, float power) {
-        if (!validTargetList.canTarget(target) || !THREAT_TABLE_CHECKER.isValidTarget(target)) return false;
-        return threat(null, target, power, null);
-    }
-
-    private boolean threat(LivingEntity caster, LivingEntity target, float power, String[] args) {
         BukkitAPIHelper helper = MythicBukkit.inst().getAPIHelper();
 
-        double threat = this.threat.get(caster, target, power, args);
-        if (powerAffectsThreat.get(caster, target, power, args)) threat *= power;
+        double threat = this.threat.get(data);
+        if (powerAffectsThreat.get(data)) threat *= data.power();
 
         boolean success;
-        if (threat >= 0) success = helper.addThreat(caster, target, threat);
-        else success = helper.reduceThreat(caster, target, -threat);
-        if (!success) return false;
+        if (threat >= 0) success = helper.addThreat(data.target(), data.caster(), threat);
+        else success = helper.reduceThreat(data.target(), data.caster(), -threat);
 
-        playSpellEffects(caster, target, power, args);
+        if (!success) return noTarget(strCantThreaten, data);
 
-        return true;
+        playSpellEffects(data);
+        return new CastResult(PostCastAction.HANDLE_NORMALLY, data);
+    }
+
+    @Override
+    public ValidTargetChecker getValidTargetChecker() {
+        return THREAT_TABLE_CHECKER;
     }
 
 }

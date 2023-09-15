@@ -1,7 +1,6 @@
 package com.tonythemacaroni.mythicspells.spells;
 
 import org.bukkit.Location;
-import org.bukkit.block.Block;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Tameable;
 import org.bukkit.entity.AnimalTamer;
@@ -17,11 +16,14 @@ import io.lumine.mythic.api.mobs.entities.SpawnReason;
 import com.nisovin.magicspells.Subspell;
 import com.nisovin.magicspells.MagicSpells;
 import com.nisovin.magicspells.util.SpellData;
+import com.nisovin.magicspells.util.CastResult;
+import com.nisovin.magicspells.util.TargetInfo;
 import com.nisovin.magicspells.util.MagicConfig;
 import com.nisovin.magicspells.spells.TargetedSpell;
 import com.nisovin.magicspells.util.config.ConfigData;
 import com.nisovin.magicspells.spelleffects.EffectPosition;
 import com.nisovin.magicspells.spells.TargetedLocationSpell;
+import com.nisovin.magicspells.events.SpellTargetLocationEvent;
 
 public class SpawnMythicMobSpell extends TargetedSpell implements TargetedLocationSpell {
 
@@ -76,85 +78,55 @@ public class SpawnMythicMobSpell extends TargetedSpell implements TargetedLocati
     }
 
     @Override
-    public PostCastAction castSpell(LivingEntity caster, SpellCastState state, float power, String[] args) {
-        if (state == SpellCastState.NORMAL) {
-            boolean spawnInAir = this.spawnInAir.get(caster, null, power, args);
-
-            Location target;
-            if (pointBlank.get(caster, null, power, args)) {
-                target = caster.getLocation();
-                if (!spawnInAir && target.getBlock().getType().isAir()) return noTarget(caster, args);
-            } else {
-                Block block = getTargetedBlock(caster, power, args);
-                if (block == null || (!spawnInAir && block.getType().isAir())) return noTarget(caster, args);
-
-                target = block.getLocation();
-            }
-
-            if (!spawnMob(caster, target, power, args)) return noTarget(caster, strCantSpawn, args);
+    public CastResult cast(SpellData data) {
+        if (pointBlank.get(data)) {
+            SpellTargetLocationEvent targetEvent = new SpellTargetLocationEvent(this, data, data.caster().getLocation());
+            if (!targetEvent.callEvent()) return noTarget(targetEvent);
+            data = targetEvent.getSpellData();
+        } else {
+            TargetInfo<Location> info = getTargetedBlockLocation(data, spawnInAir.get(data));
+            if (info.noTarget()) return noTarget(data);
+            data = info.spellData();
         }
 
-        return PostCastAction.HANDLE_NORMALLY;
+        return castAtLocation(data);
     }
 
     @Override
-    public boolean castAtLocation(LivingEntity caster, Location target, float power, String[] args) {
-        return spawnMob(caster, target, power, args);
-    }
-
-    @Override
-    public boolean castAtLocation(LivingEntity caster, Location target, float power) {
-        return spawnMob(caster, target, power, null);
-    }
-
-    @Override
-    public boolean castAtLocation(Location target, float power, String[] args) {
-        return spawnMob(null, target, power, args);
-    }
-
-    @Override
-    public boolean castAtLocation(Location target, float power) {
-        return spawnMob(null, target, power, null);
-    }
-
-    private boolean spawnMob(LivingEntity caster, Location target, float power, String[] args) {
-        String mobType = type.get(caster, null, power, args);
-        if (mobType == null) return false;
+    public CastResult castAtLocation(SpellData data) {
+        String mobType = type.get(data);
+        if (mobType == null) return noTarget(strCantSpawn, data);
 
         BukkitAPIHelper helper = MythicBukkit.inst().getAPIHelper();
         MythicMob type = helper.getMythicMob(mobType);
-        if (type == null) return false;
+        if (type == null) return noTarget(strCantSpawn, data);
 
-        target.add(0, yOffset.get(caster, null, power, args), 0);
+        Location location = data.location();
 
-        double level = this.level.get(caster, null, power, args);
-        if (powerAffectsLevel.get(caster, null, power, args)) level *= power;
+        location.add(0, yOffset.get(data), 0);
+        data = data.location(location);
 
-        ActiveMob am = type.spawn(BukkitAdapter.adapt(target), level, SpawnReason.OTHER);
+        double level = this.level.get(data);
+        if (powerAffectsLevel.get(data)) level *= data.power();
+
+        ActiveMob am = type.spawn(BukkitAdapter.adapt(location), level, SpawnReason.OTHER);
         Entity mob = am.getEntity().getBukkitEntity();
 
-        if (tamed.get(caster, null, power, args) && mob instanceof Tameable tameable && caster instanceof AnimalTamer tamer)
+        if (tamed.get(data) && mob instanceof Tameable tameable && data.caster() instanceof AnimalTamer tamer)
             tameable.setOwner(tamer);
 
-        if (caster != null && owned.get(caster, null, power, args))
-            am.setOwner(caster.getUniqueId());
+        if (data.hasCaster() && owned.get(data))
+            am.setOwner(data.caster().getUniqueId());
 
         LivingEntity livingMob = mob instanceof LivingEntity le ? le : null;
+        data = data.target(livingMob);
 
-        if (spellOnSpawn != null) {
-            if (livingMob != null && spellOnSpawn.isTargetedEntitySpell())
-                spellOnSpawn.castAtEntity(caster, livingMob, power);
-            else if (spellOnSpawn.isTargetedLocationSpell())
-                spellOnSpawn.castAtLocation(caster, mob.getLocation(), power);
-            else
-                spellOnSpawn.cast(caster, power);
-        }
+        if (spellOnSpawn != null) spellOnSpawn.subcast(data.noLocation());
 
-        SpellData data = new SpellData(caster, livingMob, power, args);
-        if (caster != null) playSpellEffects(caster, mob, data);
+        if (data.hasCaster()) playSpellEffects(data.caster(), mob, data);
         else playSpellEffects(EffectPosition.TARGET, mob, data);
 
-        return true;
+        return new CastResult(PostCastAction.HANDLE_NORMALLY, data);
     }
 
 }

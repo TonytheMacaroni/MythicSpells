@@ -7,6 +7,8 @@ import io.lumine.mythic.bukkit.MythicBukkit;
 import io.lumine.mythic.bukkit.BukkitAdapter;
 import io.lumine.mythic.bukkit.BukkitAPIHelper;
 
+import com.nisovin.magicspells.util.SpellData;
+import com.nisovin.magicspells.util.CastResult;
 import com.nisovin.magicspells.util.TargetInfo;
 import com.nisovin.magicspells.util.MagicConfig;
 import com.nisovin.magicspells.spells.TargetedSpell;
@@ -23,63 +25,34 @@ public class SignalSpell extends TargetedSpell implements TargetedEntitySpell {
 
     private final ConfigData<String> signal;
 
+    private final String strCantSignal;
+
     public SignalSpell(MagicConfig config, String spellName) {
         super(config, spellName);
 
         signal = getConfigDataString("signal", "");
+
+        strCantSignal = getConfigString("str-cant-signal", "");
     }
 
     @Override
-    public PostCastAction castSpell(LivingEntity caster, SpellCastState state, float power, String[] args) {
-        if (state == SpellCastState.NORMAL) {
-            TargetInfo<LivingEntity> targetInfo = getTargetedEntity(caster, power, MYTHIC_MOB_CHECKER, args);
-            if (targetInfo.noTarget()) return noTarget(caster, args, targetInfo);
+    public CastResult cast(SpellData data) {
+        TargetInfo<LivingEntity> info = getTargetedEntity(data, MYTHIC_MOB_CHECKER);
+        if (info.noTarget()) return noTarget(info);
 
-            LivingEntity target = targetInfo.target();
-            power = targetInfo.power();
-
-            if (!signal(caster, target, power, args)) return noTarget(caster, args);
-
-            sendMessages(caster, target, args);
-            return PostCastAction.NO_MESSAGES;
-        }
-
-        return PostCastAction.HANDLE_NORMALLY;
+        return castAtEntity(info.spellData());
     }
 
     @Override
-    public boolean castAtEntity(LivingEntity caster, LivingEntity target, float power, String[] args) {
-        if (!validTargetList.canTarget(caster, target) || !MYTHIC_MOB_CHECKER.isValidTarget(target)) return false;
-        return signal(caster, target, power, args);
-    }
-
-    @Override
-    public boolean castAtEntity(LivingEntity caster, LivingEntity target, float power) {
-        if (!validTargetList.canTarget(caster, target) || !MYTHIC_MOB_CHECKER.isValidTarget(target)) return false;
-        return signal(caster, target, power, null);
-    }
-
-    @Override
-    public boolean castAtEntity(LivingEntity target, float power, String[] args) {
-        if (!validTargetList.canTarget(target) || !MYTHIC_MOB_CHECKER.isValidTarget(target)) return false;
-        return signal(null, target, power, args);
-    }
-
-    @Override
-    public boolean castAtEntity(LivingEntity target, float power) {
-        if (!validTargetList.canTarget(target) || !MYTHIC_MOB_CHECKER.isValidTarget(target)) return false;
-        return signal(null, target, power, null);
-    }
-
-    private boolean signal(LivingEntity caster, LivingEntity target, float power, String[] args) {
+    public CastResult castAtEntity(SpellData data) {
         BukkitAPIHelper helper = MythicBukkit.inst().getAPIHelper();
-        if (!helper.isMythicMob(target)) return false;
+        if (!helper.isMythicMob(data.target())) return noTarget(strCantSignal, data);
 
-        ActiveMob mob = helper.getMythicMobInstance(target);
-        mob.signalMob(BukkitAdapter.adapt(caster), signal.get(caster, target, power, args));
+        ActiveMob mob = helper.getMythicMobInstance(data.target());
+        mob.signalMob(BukkitAdapter.adapt(data.caster()), signal.get(data));
 
-        playSpellEffects(caster, target, power, args);
-        return true;
+        playSpellEffects(data);
+        return new CastResult(PostCastAction.HANDLE_NORMALLY, data);
     }
 
 }
