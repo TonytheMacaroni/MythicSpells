@@ -17,10 +17,12 @@ import io.lumine.mythic.api.skills.ITargetedEntitySkill;
 import io.lumine.mythic.api.skills.ITargetedLocationSkill;
 import io.lumine.mythic.core.skills.mechanics.CustomMechanic;
 import io.lumine.mythic.core.utils.annotations.MythicMechanic;
+import io.lumine.mythic.api.skills.placeholders.PlaceholderString;
 
 @MythicMechanic(name = "spell", description = "Cast a MagicSpell spell.")
 public class SpellMechanic extends SkillMechanic implements INoTargetSkill, ITargetedEntitySkill, ITargetedLocationSkill {
 
+    private final PlaceholderString spellPlaceholder;
     private final boolean passTargeting;
     private final boolean requireTarget;
     private final boolean passPower;
@@ -32,8 +34,16 @@ public class SpellMechanic extends SkillMechanic implements INoTargetSkill, ITar
 
         threadSafetyLevel = ThreadSafetyLevel.SYNC_ONLY;
 
-        spell = new Subspell(config.getPlaceholderString(new String[]{"spell", "s"}, "").get());
-        invalid = !spell.process();
+        PlaceholderString placeholder = config.getPlaceholderString(new String[]{"spell", "s"}, "");
+        if (placeholder.isStatic()) {
+            spell = new Subspell(placeholder.get());
+            spellPlaceholder = null;
+            invalid = !spell.process();
+        } else {
+            spell = null;
+            spellPlaceholder = placeholder;
+            invalid = false;
+        }
 
         passPower = config.getBoolean(new String[]{"passpower", "pp"}, true);
         passTargeting = config.getBoolean(new String[]{"passtargeting", "pt"}, false);
@@ -49,6 +59,12 @@ public class SpellMechanic extends SkillMechanic implements INoTargetSkill, ITar
         if (invalid) return SkillResult.INVALID_CONFIG;
         if (requireTarget) return SkillResult.CONDITION_FAILED;
 
+        Subspell spell = this.spell;
+        if (spellPlaceholder != null) {
+            spell = new Subspell(spellPlaceholder.get(data));
+            if (!spell.process()) return SkillResult.INVALID_CONFIG;
+        }
+
         if (!(BukkitAdapter.adapt(data.getCaster().getEntity()) instanceof LivingEntity livingCaster))
             return SkillResult.INVALID_TARGET;
 
@@ -61,6 +77,12 @@ public class SpellMechanic extends SkillMechanic implements INoTargetSkill, ITar
     @Override
     public SkillResult castAtEntity(SkillMetadata data, AbstractEntity target) {
         if (invalid) return SkillResult.INVALID_CONFIG;
+
+        Subspell spell = this.spell;
+        if (spellPlaceholder != null) {
+            spell = new Subspell(spellPlaceholder.get(data, target));
+            if (!spell.process()) return SkillResult.INVALID_CONFIG;
+        }
 
         if (!(BukkitAdapter.adapt(target) instanceof LivingEntity livingTarget))
             return SkillResult.INVALID_TARGET;
@@ -76,6 +98,12 @@ public class SpellMechanic extends SkillMechanic implements INoTargetSkill, ITar
     @Override
     public SkillResult castAtLocation(SkillMetadata data, AbstractLocation target) {
         if (invalid) return SkillResult.INVALID_CONFIG;
+
+        Subspell spell = this.spell;
+        if (spellPlaceholder != null) {
+            spell = new Subspell(spellPlaceholder.get(data));
+            if (!spell.process()) return SkillResult.INVALID_CONFIG;
+        }
 
         LivingEntity livingCaster = BukkitAdapter.adapt(data.getCaster().getEntity()) instanceof LivingEntity le ? le : null;
 
