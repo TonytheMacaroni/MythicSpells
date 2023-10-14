@@ -51,7 +51,7 @@ public class SpellMechanic extends SkillMechanic implements INoTargetSkill, ITar
     }
 
     public void reprocess() {
-        invalid = !spell.process();
+        if (spell != null) invalid = !spell.process();
     }
 
     @Override
