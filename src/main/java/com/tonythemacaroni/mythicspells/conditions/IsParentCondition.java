@@ -1,5 +1,7 @@
 package com.tonythemacaroni.mythicspells.conditions;
 
+import org.jetbrains.annotations.NotNull;
+
 import org.bukkit.Location;
 import org.bukkit.entity.LivingEntity;
 
@@ -9,12 +11,14 @@ import io.lumine.mythic.bukkit.BukkitAPIHelper;
 import io.lumine.mythic.api.adapters.AbstractEntity;
 import io.lumine.mythic.bukkit.utils.serialize.Optl;
 
+import com.nisovin.magicspells.util.Name;
 import com.nisovin.magicspells.castmodifiers.Condition;
 
+@Name("isparent")
 public class IsParentCondition extends Condition {
 
     @Override
-    public boolean initialize(String var) {
+    public boolean initialize(@NotNull String var) {
         return true;
     }
 

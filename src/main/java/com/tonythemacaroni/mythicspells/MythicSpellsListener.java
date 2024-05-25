@@ -40,14 +40,14 @@ public class MythicSpellsListener implements Listener {
     public void onMagicSpellsLoading(ConditionsLoadingEvent event) {
         ConditionManager manager = event.getConditionManager();
 
-        manager.addCondition("faction", FactionCondition.class);
-        manager.addCondition("ischild", IsChildCondition.class);
-        manager.addCondition("ismythicmob", IsMythicMobCondition.class);
-        manager.addCondition("isowned", IsOwnedCondition.class);
-        manager.addCondition("isowner", IsOwnerCondition.class);
-        manager.addCondition("isparent", IsParentCondition.class);
-        manager.addCondition("moblevel", MobLevelCondition.class);
-        manager.addCondition("mobtype", MobTypeCondition.class);
+        manager.addCondition(FactionCondition.class);
+        manager.addCondition(IsChildCondition.class);
+        manager.addCondition(IsMythicMobCondition.class);
+        manager.addCondition(IsOwnedCondition.class);
+        manager.addCondition(IsOwnerCondition.class);
+        manager.addCondition(IsParentCondition.class);
+        manager.addCondition(MobLevelCondition.class);
+        manager.addCondition(MobTypeCondition.class);
     }
 
 }

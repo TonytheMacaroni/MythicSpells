@@ -1,5 +1,7 @@
 package com.tonythemacaroni.mythicspells.conditions;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.util.Set;
 import java.util.HashSet;
 
@@ -10,15 +12,17 @@ import io.lumine.mythic.core.mobs.ActiveMob;
 import io.lumine.mythic.bukkit.MythicBukkit;
 import io.lumine.mythic.bukkit.BukkitAPIHelper;
 
+import com.nisovin.magicspells.util.Name;
 import com.nisovin.magicspells.castmodifiers.Condition;
 
+@Name("mobtype")
 public class MobTypeCondition extends Condition {
 
     private Set<String> mythicTypes;
 
     @Override
-    public boolean initialize(String var) {
-        if (var == null || var.isEmpty()) return false;
+    public boolean initialize(@NotNull String var) {
+        if (var.isEmpty()) return false;
 
         mythicTypes = new HashSet<>();
 

@@ -7,9 +7,11 @@ import io.lumine.mythic.bukkit.MythicBukkit;
 import io.lumine.mythic.core.mobs.ActiveMob;
 import io.lumine.mythic.bukkit.BukkitAPIHelper;
 
+import com.nisovin.magicspells.util.Name;
 import com.nisovin.magicspells.handlers.DebugHandler;
 import com.nisovin.magicspells.castmodifiers.conditions.util.OperatorCondition;
 
+@Name("moblevel")
 public class MobLevelCondition extends OperatorCondition {
 
     private double level;
