@@ -14,9 +14,9 @@ repositories {
 }
 
 dependencies {
-    implementation "io.papermc.paper:paper-api:1.20.1-R0.1-SNAPSHOT"
+    implementation "io.papermc.paper:paper-api:1.21.1-R0.1-SNAPSHOT"
     implementation "com.github.TheComputerGeek2.MagicSpells:core:main-SNAPSHOT"
-    implementation "io.lumine:Mythic-Dist:5.3.5"
+    implementation "io.lumine:Mythic-Dist:5.7.2"
 }
 
 compileJava {
@@ -27,4 +27,10 @@ compileJava {
 
 tasks.withType(JavaCompile).configureEach {
     options.encoding = 'UTF-8'
+}
+
+tasks.jar {
+    manifest {
+        attributes["paperweight-mappings-namespace"] = "mojang"
+    }
 }
