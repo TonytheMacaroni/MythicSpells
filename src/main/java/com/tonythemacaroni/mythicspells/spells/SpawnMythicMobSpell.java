@@ -116,7 +116,7 @@ public class SpawnMythicMobSpell extends TargetedSpell implements TargetedLocati
             tameable.setOwner(tamer);
 
         if (data.hasCaster() && owned.get(data))
-            am.setOwner(data.caster().getUniqueId());
+            am.setOwnerUUID(data.caster().getUniqueId());
 
         LivingEntity livingMob = mob instanceof LivingEntity le ? le : null;
         data = data.target(livingMob);

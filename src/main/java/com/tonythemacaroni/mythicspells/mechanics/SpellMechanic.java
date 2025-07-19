@@ -133,7 +133,7 @@ public class SpellMechanic extends SkillMechanic implements INoTargetSkill, ITar
         if (castAsOwner) {
             if (!(data.getCaster() instanceof ActiveMob mob)) return null;
 
-            Optl<UUID> owner = mob.getOwner();
+            Optl<UUID> owner = mob.getOwnerUUID();
             if (!owner.isPresent()) return null;
 
             return Bukkit.getEntity(owner.get());

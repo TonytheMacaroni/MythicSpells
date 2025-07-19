@@ -3,20 +3,20 @@ plugins {
 }
 
 group "me.tonythemacaroni"
-version "0.2.4"
+version "0.3.0"
 
 repositories {
     mavenCentral()
 
-    maven { url "https://papermc.io/repo/repository/maven-public/" }
+    maven { url "https://repo.papermc.io/repository/maven-public/" }
     maven { url "https://mvn.lumine.io/repository/maven-public/"}
     maven { url 'https://jitpack.io' }
 }
 
 dependencies {
-    implementation "io.papermc.paper:paper-api:1.21.1-R0.1-SNAPSHOT"
-    implementation "com.github.TheComputerGeek2.MagicSpells:core:main-SNAPSHOT"
-    implementation "io.lumine:Mythic-Dist:5.7.2"
+    compileOnly "io.papermc.paper:paper-api:1.21.4-R0.1-SNAPSHOT"
+    compileOnly "com.github.TheComputerGeek2.MagicSpells:core:main-SNAPSHOT"
+    compileOnly "io.lumine:Mythic-Dist:5.9.5"
 }
 
 compileJava {

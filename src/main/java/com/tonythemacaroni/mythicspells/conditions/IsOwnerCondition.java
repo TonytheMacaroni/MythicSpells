@@ -33,7 +33,7 @@ public class IsOwnerCondition extends Condition {
         if (!helper.isMythicMob(caster)) return false;
 
         ActiveMob mob = helper.getMythicMobInstance(caster);
-        UUID owner = mob.getOwner().orElse(null);
+        UUID owner = mob.getOwnerUUID().orElse(null);
 
         return target.getUniqueId().equals(owner);
     }
