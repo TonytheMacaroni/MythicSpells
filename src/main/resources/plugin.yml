@@ -1,5 +1,5 @@
 name: MythicSpells
 main: com.tonythemacaroni.mythicspells.MythicSpells
-version: 0.3.0
-api-version: 1.21.4
+version: 0.4.0
+api-version: 1.21.10
 depend: [MagicSpells, MythicMobs]
