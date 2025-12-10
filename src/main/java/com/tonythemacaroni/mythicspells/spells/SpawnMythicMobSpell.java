@@ -97,8 +97,7 @@ public class SpawnMythicMobSpell extends TargetedSpell implements TargetedLocati
         String mobType = type.get(data);
         if (mobType == null) return noTarget(strCantSpawn, data);
 
-        BukkitAPIHelper helper = MythicBukkit.inst().getAPIHelper();
-        MythicMob type = helper.getMythicMob(mobType);
+        MythicMob type = MythicBukkit.inst().getAPIHelper().getMythicMob(mobType);
         if (type == null) return noTarget(strCantSpawn, data);
 
         Location location = data.location();
@@ -110,6 +109,8 @@ public class SpawnMythicMobSpell extends TargetedSpell implements TargetedLocati
         if (powerAffectsLevel.get(data)) level *= data.power();
 
         ActiveMob am = type.spawn(BukkitAdapter.adapt(location), level, SpawnReason.OTHER);
+        if (am == null) return noTarget(strCantSpawn, data);
+
         Entity mob = am.getEntity().getBukkitEntity();
 
         if (tamed.get(data) && mob instanceof Tameable tameable && data.caster() instanceof AnimalTamer tamer)
