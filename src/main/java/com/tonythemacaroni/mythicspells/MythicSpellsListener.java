@@ -12,9 +12,12 @@ import io.lumine.mythic.bukkit.events.MythicMechanicLoadEvent;
 import com.nisovin.magicspells.events.ConditionsLoadingEvent;
 import com.nisovin.magicspells.events.MagicSpellsLoadedEvent;
 import com.nisovin.magicspells.util.managers.ConditionManager;
+import com.nisovin.magicspells.events.SpellEffectsLoadingEvent;
+import com.nisovin.magicspells.util.managers.SpellEffectManager;
 
 import com.tonythemacaroni.mythicspells.conditions.*;
 import com.tonythemacaroni.mythicspells.mechanics.SpellMechanic;
+import com.tonythemacaroni.mythicspells.spelleffects.MythicMobEntityEffect;
 
 public class MythicSpellsListener implements Listener {
 
@@ -37,7 +40,7 @@ public class MythicSpellsListener implements Listener {
     }
 
     @EventHandler
-    public void onMagicSpellsLoading(ConditionsLoadingEvent event) {
+    public void onConditionsLoading(ConditionsLoadingEvent event) {
         ConditionManager manager = event.getConditionManager();
 
         manager.addCondition(FactionCondition.class);
@@ -48,6 +51,13 @@ public class MythicSpellsListener implements Listener {
         manager.addCondition(IsParentCondition.class);
         manager.addCondition(MobLevelCondition.class);
         manager.addCondition(MobTypeCondition.class);
+    }
+
+    @EventHandler
+    public void onSpellEffectsLoading(SpellEffectsLoadingEvent event) {
+        SpellEffectManager manager = event.getSpellEffectManager();
+
+        manager.addSpellEffect(MythicMobEntityEffect.class);
     }
 
 }
