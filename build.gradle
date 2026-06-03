@@ -3,7 +3,7 @@ plugins {
 }
 
 group "me.tonythemacaroni"
-version "0.5.0"
+version "0.5.1"
 
 repositories {
     mavenCentral()
@@ -14,9 +14,15 @@ repositories {
 }
 
 dependencies {
-    compileOnly "io.papermc.paper:paper-api:1.21.10-R0.1-SNAPSHOT"
-    compileOnly "com.github.TheComputerGeek2.MagicSpells:core:main-SNAPSHOT"
+    compileOnly "io.papermc.paper:paper-api:1.21.11-R0.1-SNAPSHOT"
+    compileOnly "com.github.TheComputerGeek2.MagicSpells:core:3cd051962b"
     compileOnly "io.lumine:Mythic-Dist:5.11.0"
+}
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(21)
+    }
 }
 
 compileJava {
